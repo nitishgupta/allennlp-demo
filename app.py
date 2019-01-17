@@ -10,9 +10,9 @@ import logging
 import os
 import sys
 import time
-from functools import lru_cache
+from functools import lru_cache, update_wrapper, wraps
 
-from flask import Flask, request, Response, jsonify, send_file, send_from_directory
+from flask import Flask, make_response, request, Response, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 from gevent.pywsgi import WSGIServer
 
@@ -35,6 +35,17 @@ DEMO_DIR = os.environ.get("ALLENNLP_DEMO_DIRECTORY") or 'demo/'
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("allennlp").setLevel(logging.WARN)
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
+
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
+
+    return update_wrapper(no_cache, view)
 
 class ServerError(Exception):
     status_code = 400
@@ -110,6 +121,7 @@ def make_app(build_dir: str = None, demo_db: Optional[DemoDatabase] = None) -> F
         """
         return model.predict_json(json.loads(data))
 
+    @nocache
     @app.route('/')
     def index() -> Response: # pylint: disable=unused-variable
         return send_file(os.path.join(build_dir, 'index.html'))
@@ -153,6 +165,7 @@ def make_app(build_dir: str = None, demo_db: Optional[DemoDatabase] = None) -> F
                 "responseData": permadata.response_data
         })
 
+    @nocache
     @app.route('/predict/<model_name>', methods=['POST', 'OPTIONS'])
     def predict(model_name: str) -> Response:  # pylint: disable=unused-variable
         """make a prediction using the specified model and return the results"""
@@ -242,11 +255,13 @@ def make_app(build_dir: str = None, demo_db: Optional[DemoDatabase] = None) -> F
 
         return jsonify(prediction)
 
+    @nocache
     @app.route('/models')
     def list_models() -> Response:  # pylint: disable=unused-variable
         """list the available models"""
         return jsonify({"models": list(app.predictors.keys())})
 
+    @nocache
     @app.route('/info')
     def info() -> Response:  # pylint: disable=unused-variable
         """List metadata about the running webserver"""
@@ -260,6 +275,7 @@ def make_app(build_dir: str = None, demo_db: Optional[DemoDatabase] = None) -> F
                 "githubUrl": "http://github.com/allenai/allennlp-demo/commit/" + git_version})
 
     # As an SPA, we need to return index.html for /model-name and /model-name/permalink.
+    @nocache
     @app.route('/open-information-extraction')
     @app.route('/semantic-role-labeling')
     @app.route('/constituency-parsing')
