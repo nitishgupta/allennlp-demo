@@ -1,7 +1,10 @@
 steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['pull',
+      'gcr.io/ai2-allennlp/allennlp-demo:latest']
   - name: gcr.io/kaniko-project/executor
     args:
-      - --destination="gcr.io/ai2-allennlp/allennlp-demo:$COMMIT_SHA"
+      - --destination="gcr.io/ai2-allennlp/allennlp-demo"
       - --cache=true
       - --cache-ttl=24h
   - name: 'gcr.io/cloud-builders/docker'
