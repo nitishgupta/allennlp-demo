@@ -19,11 +19,10 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['run',
       '--entrypoint=',
-      'gcr.io/ai2-allennlp/allennlp-demo',
+      'gcr.io/ai2-allennlp/allennlp-demo:$COMMIT_SHA',
       'pytest',
       'tests/']
     timeout: 1000s
-images: ['gcr.io/ai2-allennlp/allennlp-demo']
 timeout: 2000s
 images: [
   'gcr.io/ai2-allennlp/allennlp-demo:$COMMIT_SHA',
