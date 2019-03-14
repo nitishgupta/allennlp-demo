@@ -4,7 +4,7 @@ steps:
       'gcr.io/ai2-allennlp/allennlp-demo:latest']
   - name: gcr.io/kaniko-project/executor
     args:
-      - --destination="gcr.io/ai2-allennlp/allennlp-demo"
+      - --destination=gcr.io/ai2-allennlp/allennlp-demo
       - --cache=true
       - --cache-ttl=24h
   - name: 'gcr.io/cloud-builders/docker'
