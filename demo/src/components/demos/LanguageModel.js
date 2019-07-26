@@ -23,6 +23,8 @@ const apiUrl = () => `${API_ROOT}/predict/next-token-lm`
 const apiUrlInterpret = ({interpreter}) => `${API_ROOT}/interpret/next-token-lm/${interpreter}`
 const apiUrlAttack = ({attacker, name_of_input_to_attack, name_of_grad_input}) => `${API_ROOT}/attack/next-token-lm/${attacker}/${name_of_input_to_attack}/${name_of_grad_input}`
 
+const NAME_OF_INPUT_TO_ATTACK = "tokens"
+const NAME_OF_GRAD_INPUT = "grad_input_1"
 const title = "Language Modeling";
 
 const Wrapper = styled.div`
@@ -274,8 +276,8 @@ class App extends React.Component {
         const output = choice === undefined ? this.state.output : data.output
         this.setState({...data, output, loading: false})
         this.requestData = output;
-        console.log("data")
-        console.log(data)
+        // console.log("data")
+        // console.log(data)
       }
     })
     .catch(err => {
@@ -299,9 +301,10 @@ class App extends React.Component {
     // const { responseData, requestData, interpretData, interpretModel, attackData, attackModel } = this.props
     var requestData = {"sentence": this.state.output};
     var interpretData = this.state.interpretData;
-    console.log(requestData);
-    console.log(interpretData);
-    console.log(this.props);
+    var attackData = this.state.attackData;
+    // console.log(requestData);
+    // console.log(interpretData);
+    // console.log(this.props);
     var tokens = [];
     if (this.state.tokens === undefined) {
         tokens = [];
@@ -356,6 +359,7 @@ class App extends React.Component {
           <SaliencyComponent interpretData={interpretData} input1Tokens={tokens}  interpretModel = {this.interpretModel} requestData = {requestData} interpreter={GRAD_INTERPRETER} task={title}/>
           <SaliencyComponent interpretData={interpretData} input1Tokens={tokens}  interpretModel = {this.interpretModel} requestData = {requestData} interpreter={IG_INTERPRETER} task={title}/>
           <SaliencyComponent interpretData={interpretData} input1Tokens={tokens} interpretModel = {this.interpretModel} requestData = {requestData} interpreter={SG_INTERPRETER} task={title}/>
+          <HotflipComponent hotflipData={attackData} hotflipInput={this.attackModel} requestDataObject={requestData} task={title} attacker={HOTFLIP_ATTACKER} nameOfInputToAttack={NAME_OF_INPUT_TO_ATTACK} nameOfGradInput={NAME_OF_GRAD_INPUT}/>
       </Accordion>
     </Wrapper>
     )
@@ -363,9 +367,9 @@ class App extends React.Component {
     
     interpretModel(inputs, interpreter) {
       // const { apiUrlInterpret } = this.props
-      console.log(inputs);
-      console.log(apiUrlInterpret);
-      console.log(interpreter);
+      // console.log(inputs);
+      // console.log(apiUrlInterpret);
+      // console.log(interpreter);
       fetch(apiUrlInterpret(Object.assign(inputs, {interpreter})), {
         method: 'POST',
         headers: {
@@ -376,8 +380,12 @@ class App extends React.Component {
       }).then((response) => {
         return response.json();
       }).then((json) => {
-        const stateUpdate = { ...this.state }
-        stateUpdate['interpretData'] = Object.assign({}, { [interpreter]: json }, stateUpdate['interpretData'])
+        var stateUpdate = {
+            ...this.state,
+            interpretData: {
+              [interpreter]: json
+            }
+        };
         this.setState(stateUpdate)
       })
     }
@@ -394,8 +402,12 @@ class App extends React.Component {
       }).then((response) => {
         return response.json();
       }).then((json) => {
-        const stateUpdate = { ...this.state }
-        stateUpdate['attackData'] = Object.assign({}, { [attacker]: json }, stateUpdate['attackData'])
+        var stateUpdate = {
+            ...this.state,
+            attackData: {
+              [attacker]: json
+            }
+        };
         this.setState(stateUpdate)
       })
     }
@@ -416,8 +428,7 @@ const Choices = ({output, index, logits, words, choose, probabilities}) => {
     const prob = formatProbability(probabilities[idx])
 
     // get rid of CRs
-    console.log(word)
-    const cleanWord = word.replace(/\n/g, "↵")
+    const cleanWord = word.replace(/\n/g, "↵").replace("/Ġ/g"," ")
 
     return (
       <ListItem key={`${idx}-${cleanWord}`}>
