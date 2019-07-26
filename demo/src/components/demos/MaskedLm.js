@@ -9,6 +9,7 @@ import { Accordion } from 'react-accessible-accordion';
 import SaliencyComponent from '../Saliency'
 import InputReductionComponent from '../InputReduction'
 import HotflipComponent from '../Hotflip'
+import TargetedHotflipComponent from '../TargetedHotflip'
 import Model from '../Model'
 import { FormField, FormLabel, FormTextArea } from '../Form';
 import { API_ROOT } from '../../api-config';
@@ -22,6 +23,7 @@ import {
 const apiUrl = () => `${API_ROOT}/predict/masked-lm`
 const apiUrlInterpret = ({interpreter}) => `${API_ROOT}/interpret/masked-lm/${interpreter}`
 const apiUrlAttack = ({attacker, name_of_input_to_attack, name_of_grad_input}) => `${API_ROOT}/attack/masked-lm/${attacker}/${name_of_input_to_attack}/${name_of_grad_input}`
+const apiUrlTargetedAttack = ({attacker, name_of_input_to_attack, name_of_grad_input, target_word}) => `${API_ROOT}/targeted_attack/masked-lm/${attacker}/${name_of_input_to_attack}/${name_of_grad_input}/${target_word}`
 const NAME_OF_INPUT_TO_ATTACK = "tokens"
 const NAME_OF_GRAD_INPUT = "grad_input_1"
 
@@ -171,7 +173,7 @@ class App extends React.Component {
   constructor(props) {
     super(props)
 
-    const { requestData, responseData, interpretData, attackData } = props;
+    const { requestData, responseData, interpretData, attackData, targetedAttackData } = props;
     this.currentRequestId = 0;
 
     this.state = {
@@ -183,7 +185,8 @@ class App extends React.Component {
       error: false,
       model: DEFAULT_MODEL,
       interpretData: interpretData,
-      attackData: attackData
+      attackData: attackData,
+      targetedAttackData: targetedAttackData
     }
 
     this.choose = this.choose.bind(this)
@@ -192,6 +195,7 @@ class App extends React.Component {
     this.runOnEnter = this.runOnEnter.bind(this)
     this.interpretModel = this.interpretModel.bind(this)
     this.attackModel = this.attackModel.bind(this)
+    this.attackModelTargeted = this.attackModelTargeted.bind(this)
   }
 
   setOutput(evt) {
@@ -302,6 +306,7 @@ class App extends React.Component {
     var requestData = {"sentence": this.state.output};
     var interpretData = this.state.interpretData;
     var attackData = this.state.attackData;
+    var targetedAttackData = this.state.targetedAttackData;
     console.log(requestData);
     console.log(interpretData);
     console.log(this.props);
@@ -370,6 +375,7 @@ class App extends React.Component {
           <SaliencyComponent interpretData={interpretData} input1Tokens={tokens}  interpretModel = {this.interpretModel} requestData = {requestData} interpreter={IG_INTERPRETER} task={title}/>
           <SaliencyComponent interpretData={interpretData} input1Tokens={tokens} interpretModel = {this.interpretModel} requestData = {requestData} interpreter={SG_INTERPRETER} task={title}/>
           <HotflipComponent hotflipData={attackData} hotflipInput={this.attackModel} requestDataObject={requestData} task={title} attacker={HOTFLIP_ATTACKER} nameOfInputToAttack={NAME_OF_INPUT_TO_ATTACK} nameOfGradInput={NAME_OF_GRAD_INPUT}/>
+          <TargetedHotflipComponent hotflipData={targetedAttackData} hotflipInput={this.attackModelTargeted} requestDataObject={requestData} task={title} attacker={HOTFLIP_ATTACKER} nameOfInputToAttack={NAME_OF_INPUT_TO_ATTACK} nameOfGradInput={NAME_OF_GRAD_INPUT}/>
       </Accordion>
     </Wrapper>
     )
@@ -410,6 +416,27 @@ class App extends React.Component {
       }).then((json) => {
         const stateUpdate = { ...this.state }
         stateUpdate['attackData'] = Object.assign({}, { [attacker]: json }, stateUpdate['attackData'])
+        this.setState(stateUpdate)
+      })
+    }
+
+    attackModelTargeted(inputs, attacker, name_of_input_to_attack, name_of_grad_input, form_inputs) {
+      console.log(form_inputs)
+      const { target_word } = form_inputs
+      console.log(target_word)
+      // const { apiUrlAttack } = this.props
+      fetch(apiUrlTargetedAttack(Object.assign(inputs, {attacker}, {name_of_input_to_attack}, {name_of_grad_input}, {target_word})), {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(inputs)
+      }).then((response) => {
+        return response.json();
+      }).then((json) => {
+        const stateUpdate = { ...this.state }
+        stateUpdate['targetedAttackData'] = Object.assign({}, { [attacker]: json }, stateUpdate['targetedAttackData'])
         this.setState(stateUpdate)
       })
     }

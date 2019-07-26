@@ -214,14 +214,13 @@ def make_app(build_dir: str,
         attack = attacker.attack_from_json(data, name_of_input_to_attack, name_of_grad_input)
         return jsonify(attack)
 
-    @app.route('/targeted_attack/<model_name>/<attacker_name>/<name_of_input_to_attack>/<name_of_grad_input>/<target_label>/<target>/<target_word>',
+    @app.route('/targeted_attack/<model_name>/<attacker_name>/<name_of_input_to_attack>/<name_of_grad_input>/<target>',
      methods=['POST','OPTIONS'])
     def targeted_attack(model_name: str,
-                attacker_name: str,
-                name_of_input_to_attack: str,
-                name_of_grad_input: str,
-                target: str,
-                target_word: str) -> Response:
+                        attacker_name: str,
+                        name_of_input_to_attack: str,
+                        name_of_grad_input: str,
+                        target: str) -> Response:
         """
         Modify input to change prediction of model
         """
@@ -237,7 +236,11 @@ def make_app(build_dir: str,
         if len(serialized_request) > max_request_length:
             raise ServerError(f"Max request length exceeded for model {model_name}! " +
                               f"Max: {max_request_length} Actual: {len(serialized_request)}")
-        attack = attacker.targeted_attack_from_json(data, name_of_input_to_attack, name_of_grad_input, target, target_word)
+        attack = attacker.targeted_attack_from_json(data,
+                                                    name_of_input_to_attack,
+                                                    name_of_grad_input,
+                                                    ignore_tokens=["[MASK]", "[CLS]", "[SEP]"],
+                                                    target=target)
         return jsonify(attack)
 
     @app.route('/interpret/<model_name>/<interpreter_name>', methods=['POST', 'OPTIONS'])
