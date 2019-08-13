@@ -242,7 +242,7 @@ def make_app(build_dir: str,
                                                     name_of_input_to_attack,
                                                     name_of_grad_input,
                                                     ignore_tokens=["[MASK]", "[CLS]", "[SEP]"],
-                                                    target=target)
+                                                    target=[target])
         return jsonify(attack)
 
     @app.route('/interpret/<model_name>/<interpreter_name>', methods=['POST', 'OPTIONS'])
