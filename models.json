@@ -35,5 +35,10 @@
         "archive_file": "https://s3-us-west-2.amazonaws.com/allennlp/models/sst-2-basic-classifier-glove-2019.06.27.tar.gz",
         "predictor_name": "text_classifier",
         "max_request_length": 1000
+    },
+    "named-entity-recognition": {
+        "archive_file": "https://storage.googleapis.com/allennlp-public-models/ner-model-2018.12.18.tar.gz",
+        "predictor_name": "sentence-tagger",
+        "max_request_length": 94864
     }
 }

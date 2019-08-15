@@ -28,7 +28,8 @@ const modelGroups = [
         iconSrc: annotateIcon,
         defaultOpen: true,
         models: [
-            {model: "sentiment-analysis", name: "Sentiment Analysis", component: SentimentAnalysis}
+            {model: "sentiment-analysis", name: "Sentiment Analysis", component: SentimentAnalysis},
+            {model: "named-entity-recognition", name: "Named Entity Recognition", component: NamedEntityRecognition}
         ]
     },
     {
