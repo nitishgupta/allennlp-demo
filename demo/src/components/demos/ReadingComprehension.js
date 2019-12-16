@@ -25,7 +25,7 @@ import {
   HOTFLIP_ATTACKER
 } from '../InterpretConstants'
 
-const title = "Reading Comprehension"
+const title = "XYZ Comprehension"
 
 const NAME_OF_INPUT_TO_ATTACK = "question"
 const NAME_OF_GRAD_INPUT = "grad_input_2"
