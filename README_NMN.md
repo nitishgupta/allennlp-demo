@@ -7,3 +7,5 @@ docker run -p 8000:8000 \
 	--rm \
 	gcr.io/ai2-reviz/allennlp-demo-nmn-drop:$GIT_HASH \
 	--model nmn-drop
+
+docker push gcr.io/ai2-reviz/allennlp-demo-nmn-drop:$GIT_HASH
