@@ -47,6 +47,7 @@ RUN pip install dateparser
 RUN ln -s nmn-drop/semqa .
 RUN ln -s nmn-drop/utils .
 RUN ln -s nmn-drop/datasets .
+RUN ln -s nmn-drop/pattn2count_ckpt .
 RUN ln -s allennlp-semparse/allennlp_semparse .
 
 ENTRYPOINT ["./app.py"]
