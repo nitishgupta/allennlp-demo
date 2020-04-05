@@ -16,10 +16,10 @@
         "max_request_length": 25819
     },
     "nmn-drop": {
-        "archive_file": "https://nmn-drop.s3.amazonaws.com/model.tar.gz",
+        "archive_file": "https://storage.googleapis.com/allennlp-public-models/drop-nmn-2020.04.04.tar.gz",
         "predictor_name": "drop_demo_predictor",
         "max_request_length": 25819,
-        "overrides": "{\"model\": { \"debug\":true}}"
+        "overrides": "{\"model\": { \"debug\":true, \"beam_size\":1}}"
     },
     "semantic-role-labeling": {
         "archive_file": "https://storage.googleapis.com/allennlp-public-models/bert-base-srl-2019.06.17.tar.gz",
