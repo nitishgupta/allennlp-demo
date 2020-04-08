@@ -40,7 +40,7 @@ ENV ALLENNLP_DEMO_SOURCE_COMMIT $SOURCE_COMMIT
 EXPOSE 8000
 
 # To run nmn-drop demo
-RUN git clone https://github.com/nitishgupta/nmn-drop nmn-drop && cd nmn-drop && git checkout 603c44a6455caa576db84f5849f02fcd045a1469
+RUN git clone https://github.com/nitishgupta/nmn-drop nmn-drop && cd nmn-drop && git checkout 938e451a571bfbe97d8558bc92b338332fdb1dbd
 RUN git clone https://github.com/allenai/allennlp-semparse.git allennlp-semparse && cd allennlp-semparse && git checkout 937d5945488a33c61d0047bd74d8106e60340bbd
 
 RUN pip install dateparser
